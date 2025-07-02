@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flask Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <h2>🧠 Chatbot Assistant</h2>
+
+  <div id="chat-box"></div>
+
+  <div class="input-area">
+    <input id="user-input" type="text" placeholder="Ask me something..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <footer>
+    <p>Built with ❤️ using Flask & Transformers</p>
+  </footer>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const chatBox = document.getElementById("chat-box");
+      const userMessage = input.value.trim();
+      if (!userMessage) return;
+
+      // Append user message
+      chatBox.innerHTML += `<div class="bubble user-bubble">👤 <strong>You:</strong> ${userMessage}</div>`;
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage })
+        });
+
+        const data = await res.json();
+        alert(JSON+stringify(data.response))
+        chatBox.innerHTML += `<div class="bubble bot-bubble">🤖 <strong>Bot:</strong> ${data.response || data.error}</div>`;
+      } catch (err) {
+        chatBox.innerHTML += `<div class="bubble error-bubble">❌ Error: Could not connect to the server.</div>`;
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll
+      input.value = "";
+    }
+  </script>
+</body>
+</html>
